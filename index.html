@@ -67,11 +67,10 @@ async function createSession() {
   console.log("🔍 URL Params:", window.location.search);
   console.log("📍 Store =", store, " | Table =", table);
 
-  if (!store || !table) {
-    console.error("❌ Thiếu store hoặc table từ URL");
-    alert('QR Code không hợp lệ!');
-    return;
-  }
+if (!store || !table) {
+  console.log("Không phải trang scan QR, bỏ qua createSession()");
+  return;
+}
 
   try {
     console.log("🗑 Xóa session cũ nếu có...");
