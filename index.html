@@ -59,30 +59,38 @@
     const SUPABASE_URL = 'https://mhmvtywqtaqikaubhhmf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1obXZ0eXdxdGFxaWthdWJoaG1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNDA4MTMsImV4cCI6MjA3ODYxNjgxM30.VDRLH8sTCkoZfJes3VJfHJhXsaCla9PkM2WcPL5T0Ds';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function createSession() {
+async function createSession() {
   const urlParams = new URLSearchParams(window.location.search);
   const store = urlParams.get('store');
   const table = urlParams.get('table');
 
+  console.log("🔍 URL Params:", window.location.search);
+  console.log("📍 Store =", store, " | Table =", table);
+
   if (!store || !table) {
+    console.error("❌ Thiếu store hoặc table từ URL");
     alert('QR Code không hợp lệ!');
     return;
   }
 
   try {
-    // ⭐ XÓA TOKEN CŨ CỦA BÀN NÀY (NẾU CÓ)
-    await supabase
+    console.log("🗑 Xóa session cũ nếu có...");
+    const deleteResult = await supabase
       .from('qr_sessions')
       .delete()
       .eq('store_code', store)
       .eq('table_number', table);
 
+    console.log("🧽 Kết quả delete:", deleteResult);
+
     // Tạo token mới
     const token = generateToken();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    console.log("🔑 Token tạo ra:", token);
 
-    const { error } = await supabase
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    console.log("⏳ Thời gian hết hạn:", expiresAt.toISOString());
+
+    const { data, error } = await supabase
       .from('qr_sessions')
       .insert([{
         token: token,
@@ -93,18 +101,24 @@
       }])
       .select();
 
-    if (error) throw error;
+    console.log("📦 Insert result:", data, error);
 
-    // Chờ một chút
+    if (error) {
+      console.error("❌ Lỗi insert:", error);
+      throw error;
+    }
+
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    window.location.href = `/order.html?token=${token}`;
+    console.log("➡ Redirect to:", `/index.html?token=${token}`);
+    window.location.href = `/index.html?token=${token}`;
 
   } catch (error) {
-    console.error('Lỗi tạo session:', error);
+    console.error('🔥 Lỗi tạo session:', error);
     alert('Có lỗi xảy ra. Vui lòng quét lại QR!');
   }
 }
+
     function generateToken() {
       return 'token_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
     }
