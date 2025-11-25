@@ -170,7 +170,7 @@
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Giờ mới chuyển trang
-    window.location.href = `order.html?token=${token}`;
+    window.location.href = `/order.html?token=${token}`;
 
   } catch (error) {
     console.error('Lỗi tạo session:', error);
