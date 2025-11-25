@@ -760,6 +760,7 @@ async function submitOrder() {
   const order = {
     id: Date.now(),
     store_code: storeCode,
+    user_id: `qr_${storeCode}_table${tableNumber}`,  // ← THÊM DÒNG NÀY
     table_number: tableNumber,
     order_type: 'dine',
     order_source: 'qr',
